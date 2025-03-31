@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="admin/default">
+
+<head>
+    <title>Lista de Películas</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="row">
+        <div class="col-md-12">
+            <h3>
+                <a href="/peliculas/create" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Nueva Película</a>
+            </h3>
+            <h2>Lista de Películas</h2>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Género</th>
+                            <th>Horario</th>
+                            <th>Sala</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="pelicula : ${peliculas}">
+
+                            <td>
+                                <a th:text="${pelicula.nombre}"
+                                    th:href="@{'/peliculas/show/' + ${pelicula.idmovie}}"></a>
+                            </td>
+                            <td th:text="${pelicula.genero}"></td>
+                            <td th:text="${pelicula.horario}"></td>
+                            <td th:text="${pelicula.sala}"></td>
+                            <td th:text="${pelicula.estado} ? 'Disponible' : 'No Disponible'"
+                                th:class="${pelicula.estado} ? 'text-success' : 'text-danger'">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

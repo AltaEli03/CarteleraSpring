@@ -1,0 +1,82 @@
+<!DOCTYPE HTML>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="admin/default">
+
+<head>
+    <title>Detalles de Película</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="row">
+        <div class="col-md-8">
+            <h3>
+                <a href="/peliculas" class="btn btn-primary"><i class="bi bi-list-ul"></i> Lista de Películas</a>
+            </h3>
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title" th:text="${pelicula.nombre}"></h2>
+                    
+                    <dl class="row">
+                        <dt class="col-sm-3">Género:</dt>
+                        <dd class="col-sm-9" th:text="${pelicula.genero}"></dd>
+
+                        <dt class="col-sm-3">Sinopsis:</dt>
+                        <dd class="col-sm-9" th:text="${pelicula.sinopsis}"></dd>
+                        
+                        <dt class="col-sm-3">Horario:</dt>
+                        <dd class="col-sm-9" th:text="${pelicula.horario}"></dd>
+                        
+                        <dt class="col-sm-3">Sala:</dt>
+                        <dd class="col-sm-9" th:text="${pelicula.sala}"></dd>
+                        
+                        <dt class="col-sm-3">Estado:</dt>
+                        <dd class="col-sm-9">
+                            <span th:text="${pelicula.estado} ? 'Disponible' : 'No Disponible'"
+                                  th:class="${pelicula.estado} ? 'text-success' : 'text-danger'">
+                            </span>
+                        </dd>
+                        
+                        <dt class="col-sm-3">Fechas:</dt>
+                        <dd class="col-sm-9">
+                            <strong>Fecha Inicio:</strong> <span th:text="${pelicula.fechaInicio}"></span> -
+                            <strong>Fecha Final:</strong> <span th:text="${pelicula.fechaFinal}"></span>
+                        </dd>
+                        
+                        
+                        <dt class="col-sm-3">Póster:</dt>
+                        <dd class="col-sm-9">
+                            <img th:src="${pelicula.imagenUrl}" alt="Poster" style="max-width: 200px;" class="img-thumbnail">
+                        </dd>
+
+                        <dt class="col-sm-3">Tráiler:</dt>
+                        <dd class="col-sm-9">
+                            <div class="ratio ratio-16x9">
+                                <iframe 
+                                    th:attr="src=${pelicula.videoEmbed}"
+                                    allowfullscreen 
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    referrerpolicy="strict-origin-when-cross-origin">
+                                </iframe>
+                            </div>
+                        </dd>
+                    </dl>
+                    
+                    <div class="mt-4">
+                        <form action="/peliculas/delete" method="post">
+                            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                            <input type="hidden" name="idmovie" th:value="${pelicula.idmovie}">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('¿Eliminar película?')">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                            <a th:href="@{'/peliculas/edit/' + ${pelicula.idmovie}}" class="btn btn-primary">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

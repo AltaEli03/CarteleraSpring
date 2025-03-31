@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4" id="movieGrid">
+    <div class="col" th:each="pelicula : ${peliculas}">
+        <div class="card movie-card h-100"> <img th:src="${pelicula.imagenUrl}" class="card-img-top"
+                style="height: 350px; object-fit: contain;" alt="Póster">
+            <div class="card-body">
+                <h5 class="card-title" th:text="${pelicula.nombre}"></h5>
+                <p class="card-text"> <span class="badge bg-danger" th:text="${pelicula.genero}"></span> </p>
+                <a th:href="@{'/pelicula/' + ${pelicula.idmovie}}" class="btn btn-primary">Ver detalles</a>
+            </div>
+        </div>
+    </div>
+    <div th:if="${peliculas.isEmpty()}" class="col-12">
+        <div class="alert alert-warning text-center">
+            No se encontraron películas con los criterios de búsqueda
+        </div>
+    </div>
+</div>
+
+</html>

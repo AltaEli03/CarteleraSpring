@@ -1,0 +1,118 @@
+<!DOCTYPE HTML>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="admin/default">
+
+<head>
+    <title>Editar Película</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="row">
+        <div class="col-md-8">
+            <h3>
+                <a href="/peliculas" class="btn btn-primary"><i class="bi bi-list-ul"></i>
+                    Lista de Películas</a>
+            </h3>
+            <h2>Editar Película</h2>
+            <form action="/peliculas/update" method="post" class="mb-3" th:object="${pelicula}">
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+                <input type="hidden" th:field="*{idmovie}" />
+
+                <div class="form-group mb-3">
+                    <label>Nombre:</label>
+                    <input type="text" class="form-control" th:field="*{nombre}" placeholder="Ingrese nombre" maxlength="50" />
+                    <div th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}" class="text-danger"></div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Género:</label>
+                    <input type="text" class="form-control" th:field="*{genero}" placeholder="Ingrese género" maxlength="50" />
+                    <div th:if="${#fields.hasErrors('genero')}" th:errors="*{genero}" class="text-danger"></div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Sinopsis:</label>
+                    <textarea class="form-control" th:field="*{sinopsis}" rows="3"
+                        placeholder="Ingrese sinopsis" maxlength="250"></textarea>
+                    <div th:if="${#fields.hasErrors('sinopsis')}" th:errors="*{sinopsis}" class="text-danger"></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label>Horario:</label>
+                            <input type="text" class="form-control" th:field="*{horario}"
+                                placeholder="Ingrese horario" maxlength="15" />
+                            <div th:if="${#fields.hasErrors('horario')}" th:errors="*{horario}" class="text-danger">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label>Sala:</label>
+                            <input type="text" class="form-control" th:field="*{sala}" placeholder="Ingrese sala" maxlength="10" />
+                            <div th:if="${#fields.hasErrors('sala')}" th:errors="*{sala}" class="text-danger"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>URL de la Imagen:</label>
+                    <input type="text" class="form-control" th:field="*{imagenUrl}"
+                        placeholder="Ingrese URL de la imagen" />
+                    <div th:if="${#fields.hasErrors('imagenUrl')}" th:errors="*{imagenUrl}" class="text-danger"></div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>URL del Video:</label>
+                    <input type="text" class="form-control" th:field="*{videoEmbed}"
+                        placeholder="Ingrese URL del video" />
+                    <div th:if="${#fields.hasErrors('videoEmbed')}" th:errors="*{videoEmbed}" class="text-danger"></div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="estado">Estado:</label>
+                    <select class="form-select" th:field="*{estado}" id="estado">
+                        <option value="true">Disponible</option>
+                        <option value="false">No Disponible</option>
+                    </select>
+                    <div th:if="${#fields.hasErrors('estado')}" th:errors="*{estado}" class="text-danger"></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label>Fecha Inicio:</label>
+                            <input type="date"
+                                   class="form-control"
+                                   th:field="*{fechaInicio}"
+                                   th:value="${fechaInicio != null} ? ${#dates.format(fechaInicio, 'yyyy-MM-dd')} : ''" />
+                            <div th:if="${#fields.hasErrors('fechaInicio')}"
+                                 th:errors="*{fechaInicio}" class="text-danger">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label>Fecha Final:</label>
+                            <input type="date"
+                                   class="form-control"
+                                   th:field="*{fechaFinal}"
+                                   th:value="${fechaFinal != null} ? ${#dates.format(fechaFinal, 'yyyy-MM-dd')} : ''" />
+                            <div th:if="${#fields.hasErrors('fechaFinal')}"
+                                 th:errors="*{fechaFinal}" class="text-danger">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+
+                <button type="submit" class="btn btn-warning mt-3">
+                    <i class="bi bi-pencil"></i> Actualizar
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

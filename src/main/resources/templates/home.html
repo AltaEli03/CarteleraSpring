@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cartelera</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        .sidebar {
+            width: 250px;
+            background: #212529;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        @media (max-width: 767.98px) {
+            .sidebar {
+                transform: translateX(-100%) !important;
+                ;
+            }
+
+            .sidebar.show {
+                transform: translateX(0) !important;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+            }
+
+            .custom-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+        }
+
+        .sidebar-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 0 1rem;
+        }
+
+        .sidebar-header {
+            padding: 1rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #343a40;
+        }
+
+        .sidebar-brand {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem 0;
+        }
+
+        .sidebar-item {
+            color: rgba(255, 255, 255, .5);
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            margin: 0.25rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-item:hover {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .sidebar-item-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .sidebar-icon {
+            width: 1.5rem;
+            text-align: center;
+        }
+
+        .sidebar-icon-lg {
+            font-size: 1.25rem;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 0;
+            border-top: 1px solid #343a40;
+            margin-top: auto;
+        }
+
+        .movie-card {
+            transition: transform 0.3s;
+            height: 100%;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .search-group {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 0px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #dee2e6;
+            border-radius: 1px;
+            padding: 5px 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-icon:hover {
+            background: #f8f9fa;
+            border-color: #0d6efd;
+            color: #0d6efd !important;
+        }
+
+        .search-icon:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+        }
+
+        .dual-search {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar text-white" id="sidebar">
+        <div class="sidebar-container">
+            <div class="sidebar-header">
+                <a class="sidebar-brand">Cartelera Spring</a>
+                <button type="button" class="btn-close btn-close-white d-md-none" onclick="toggleSidebar()"></button>
+            </div>
+
+            <div class="sidebar-nav">
+                <a href="/home" class="sidebar-item">
+                    <div class="sidebar-item-content">
+                        <i class="bi bi-house sidebar-icon sidebar-icon-lg"></i>
+                        <span>Inicio</span>
+                    </div>
+                </a>
+                <a href="/peliculas" class="sidebar-item" sec:authorize="hasAuthority('ADMINISTRADOR')">
+                    <div class="sidebar-item-content">
+                        <i class="bi bi-film sidebar-icon"></i>
+                        <span>Gestionar Películas</span>
+                    </div>
+                </a>
+
+                <!-- Footer del sidebar -->
+                <div class="sidebar-footer" sec:authorize="!isAuthenticated()">
+                    <div class="border-top pt-3">
+                        <a th:href="@{/login}" class="btn btn-primary w-100">
+                            <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+                        </a>
+                    </div>
+                </div>
+
+
+                <div class="sidebar-footer" sec:authorize="isAuthenticated()">
+                    <div class="border-top pt-3">
+                        <p class="text-light mb-1">
+                            <i class="bi bi-person-circle"></i>
+                            Usuario: <span th:text="${username}"></span>
+                        </p>
+                        <p class="text-light">Rol: <span th:text="${role}"></span></p>
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit" class="btn btn-outline-light w-100">
+                                <i class="bi bi-arrow-bar-right"></i> Cerrar sesión
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content p-4">
+        <!-- Header con buscador y toggle -->
+        <div th:if="${logout}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${logout}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <header class="mb-4">
+            <div class="d-flex flex-column flex-md-row gap-2 align-items-center">
+                <div class="d-flex justify-content-between w-100">
+                    <button class="btn btn-outline-primary d-md-none" type="button" onclick="toggleSidebar()">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <h2 class="text-center mb-0 mobile-title">Cartelera Spring</h2>
+                    <div class="d-md-none" style="width: 48px;"></div> <!-- Espacio para alineación -->
+                </div>
+
+                <div class="dual-search w-100">
+                    <div class="search-container flex-column flex-md-row">
+                        <!-- Buscador de Títulos -->
+                        <form class="search-group" onsubmit="searchByTitle(event)">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="titleSearch"
+                                    placeholder="Buscar por título..." aria-label="Buscar por título">
+                                <button type="submit" class="search-icon text-primary">
+                                    <i class="bi bi-camera-reels"></i>
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Buscador de Géneros -->
+                        <form class="search-group" onsubmit="searchByGenre(event)">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="genreSearch"
+                                    placeholder="Buscar por género..." aria-label="Buscar por género">
+                                <button type="submit" class="search-icon text-primary">
+                                    <i class="bi bi-tags"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Grid de películas -->
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4" id="movieGrid">
+            <div class="col" th:each="pelicula : ${peliculas}">
+                <div class="card movie-card h-100"> <img th:src="${pelicula.imagenUrl}" class="card-img-top"
+                        style="height: 350px; object-fit: contain;" alt="Póster">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${pelicula.nombre}"></h5>
+                        <p class="card-text"> <span class="badge bg-danger" th:text="${pelicula.genero}"></span> </p>
+                        <a th:href="@{'/pelicula/' + ${pelicula.idmovie}}" class="btn btn-primary">Ver detalles</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de paginación y total -->
+        <div class="mt-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                <p class="mb-3 mb-md-0">Total de películas: <span th:text="${totalPeliculas}"></span></p>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mb-0">
+                        <!-- Botón Anterior -->
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link"
+                                th:href="@{'/home'(page=${currentPage > 0 ? currentPage - 1 : 0}, title=${param.title}, genre=${param.genre})}">
+                                <i class="bi bi-arrow-left"></i> Anterior
+                            </a>
+                        </li>
+
+                        <!-- Botones de páginas individuales -->
+                        <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" class="page-item"
+                            th:classappend="${i == currentPage} ? 'active'">
+                            <a class="page-link"
+                                th:href="@{'/home'(page=${i}, title=${param.title}, genre=${param.genre})}"
+                                th:text="${i + 1}">1</a>
+                        </li>
+
+                        <!-- Botón Siguiente -->
+                        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                            <a class="page-link"
+                                th:href="@{'/home'(page=${currentPage < totalPages - 1 ? currentPage + 1 : totalPages - 1}, title=${param.title}, genre=${param.genre})}">
+                                Siguiente <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+
+        <!-- Footer -->
+        <footer class="mt-5 pt-4 border-top">
+            <div class="row">
+                <div class="col-6 col-md-3 mb-3">
+                    <h5>Enlaces útiles</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Sobre nosotros</a></li>
+                        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Contacto</a></li>
+                        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Términos</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-md-3 mb-3">
+                    <h5>Redes sociales</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Facebook</a></li>
+                        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Twitter</a></li>
+                        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Instagram</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center py-3">
+                <p class="mb-0">© 2025 Cartelera Spring. Todos los derechos reservados.</p>
+            </div>
+        </footer>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Función para alternar el sidebar - MODIFICADA
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('show');
+            toggleBackdrop();
+        }
+
+        // Manejar el backdrop manualmente - MODIFICADA
+        function toggleBackdrop() {
+            const backdrop = document.querySelector('.custom-backdrop');
+
+            if (!backdrop) {
+                const newBackdrop = document.createElement('div');
+                newBackdrop.className = 'custom-backdrop fade show';
+                newBackdrop.onclick = toggleSidebar;
+                document.body.appendChild(newBackdrop);
+                document.body.style.overflow = 'hidden';
+            } else {
+                backdrop.remove();
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Ajustar el contenido y manejar el resize - MODIFICADA
+        function adjustLayout() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const backdrop = document.querySelector('.custom-backdrop');
+
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('show');
+                mainContent.style.marginLeft = '250px';
+                if (backdrop) backdrop.remove();
+                sidebar.style.transform = 'none'; // Eliminar transformación
+            } else {
+                mainContent.style.marginLeft = '0';
+                if (!sidebar.classList.contains('show')) {
+                    sidebar.style.transform = 'translateX(-100%)';
+                } else {
+                    sidebar.style.transform = 'translateX(0)';
+                }
+            }
+        }
+
+        // Event listeners
+        window.addEventListener('DOMContentLoaded', adjustLayout);
+        window.addEventListener('resize', adjustLayout);
+
+        let currentTitleSearch = '';
+        let currentGenreSearch = '';
+
+        async function searchByTitle(event) {
+            event.preventDefault();
+            currentTitleSearch = document.getElementById('titleSearch').value.trim();
+            await performSearch();
+        }
+
+        async function searchByGenre(event) {
+            event.preventDefault();
+            currentGenreSearch = document.getElementById('genreSearch').value.trim();
+            await performSearch();
+        }
+
+        async function performSearch() {
+            const url = new URL(window.location.href); // Mantener la URL actual
+
+            if (currentTitleSearch) {
+                url.searchParams.set('title', currentTitleSearch);
+            } else {
+                url.searchParams.delete('title');
+            }
+
+            if (currentGenreSearch) {
+                url.searchParams.set('genre', currentGenreSearch);
+            } else {
+                url.searchParams.delete('genre');
+            }
+
+            try {
+                const response = await fetch(`/search${url.search}`);
+                const html = await response.text();
+
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newContent = doc.querySelector('#movieGrid').outerHTML;
+
+                document.getElementById('movieGrid').outerHTML = newContent;
+                window.history.replaceState({}, '', url.toString());
+
+            } catch (error) {
+                console.error('Error en la búsqueda:', error);
+                showError();
+            }
+        }
+
+        function showError() {
+            document.getElementById('movieGrid').innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-danger text-center">
+                        Error al cargar los resultados
+                    </div>
+                </div>`;
+        }
+
+        // Cargar búsquedas al iniciar
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const hasSearchParams = urlParams.has('title') || urlParams.has('genre');
+
+            document.getElementById('titleSearch').value = urlParams.get('title') || '';
+            document.getElementById('genreSearch').value = urlParams.get('genre') || '';
+
+            if (hasSearchParams) {
+                performSearch();
+            } else {
+                // Cargar películas iniciales sin parámetros
+                fetchInitialMovies();
+            }
+        });
+
+        async function fetchInitialMovies() {
+            try {
+                const response = await fetch('/home');
+                const html = await response.text();
+
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newContent = doc.querySelector('#movieGrid').outerHTML;
+
+                document.getElementById('movieGrid').outerHTML = newContent;
+            } catch (error) {
+                console.error('Error cargando películas:', error);
+                showError();
+            }
+        }
+    </script>
+</body>
+
+</html>
